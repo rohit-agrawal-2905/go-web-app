@@ -32,6 +32,18 @@ jobs:
     - name: Test
       run: go test ./...
   
+  code-quality:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Run golangci-lint
+      uses: golangci/golangci-lint-action@v6
+      with:
+        version: v1.56.2
+  
   push:
     runs-on: ubuntu-latest
 
@@ -49,24 +61,15 @@ jobs:
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
-        
-    - name: Debug
-      run: |
-        echo "Docker Hub Username: ${{ secrets.DOCKERHUB_USERNAME }}"
-        echo "Run ID: ${{ github.run_id }}"
-        echo "Full image tag: docker.io/${{ secrets.DOCKERHUB_USERNAME }}/go-web-app:${{ github.run_id }}" 
-        
+
     - name: Build and Push action
-      env:
-        DOCKER_IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/go-web-app
       uses: docker/build-push-action@v6
       with:
         context: .
         file: ./Dockerfile
         push: true
-        # Single, correctly formatted tag
-        tags: ${{ env.DOCKER_IMAGE }}:${{ github.run_id }}
-           
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/go-web-app:${{github.run_id}}
+
   update-newtag-in-helm-chart:
     runs-on: ubuntu-latest
 
@@ -89,5 +92,4 @@ jobs:
         git add helm/go-web-app-chart/values.yaml
         git commit -m "Update tag in Helm chart"
         git push
-
 

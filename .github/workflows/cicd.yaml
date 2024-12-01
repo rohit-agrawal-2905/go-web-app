@@ -57,6 +57,11 @@ jobs:
         file: ./Dockerfile
         push: true
         tags: docker.io/${{ secrets.DOCKERHUB_USERNAME }}/go-web-app:${{ github.run_id }}
+    - name: Debug
+      run: |
+        echo "Docker Hub Username: ${{ secrets.DOCKERHUB_USERNAME }}"
+        echo "Run ID: ${{ github.run_id }}"
+        echo "Full image tag: docker.io/${{ secrets.DOCKERHUB_USERNAME }}/go-web-app:${{ github.run_id }}"
         
   update-newtag-in-helm-chart:
     runs-on: ubuntu-latest
